@@ -56,6 +56,16 @@ while True:
         cv2.line(image, (centerx_preto, 200), (centerx_preto, 250), (255, 0, 0), 3)
         if Preto == True:
             print("Preto Detectado")
+    if Verde_detectado == True:
+        if centerx_verde > centerx_preto:
+            cv2.putText(image, "Vire a direita", (350,180), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,255,0), 3)
+        else:
+            cv2.putText(image, "Vire a esquerda", (50, 180), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 3)
+    elif len(contours_verde) == 0 and len(contours_preto) == 0:
+        setpoint = 320
+        error = centerx_preto - setpoint
+        centertext = "Erro = " + str(error)
+        cv2.putText(image, centertext, (200,340), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255,0,0),3)
     #if len(contours_preto) > 0:
         #c = max(contours, key=cv2.contourArea) ## CODIGO DE DESENHO 1
         #M = cv2.moments(c) ## CODIGO DE DESENHO 1
