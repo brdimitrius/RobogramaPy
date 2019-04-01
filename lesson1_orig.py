@@ -61,7 +61,8 @@ while True:
             cv2.putText(image, "Vire a direita", (350,180), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,255,0), 3)
         else:
             cv2.putText(image, "Vire a esquerda", (50, 180), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 3)
-    elif len(contours_verde) == 0 and len(contours_preto) == 0:
+            #elif len(contours_verde) == 0 and len(contours_preto) == 0
+    else:
         setpoint = 320
         error = centerx_preto - setpoint
         centertext = "Erro = " + str(error)
