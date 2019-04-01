@@ -34,28 +34,28 @@ while True:
     sinal_verde = cv2.erode(sinal_verde, kernel, iterations=9)
     contours_preto, hierarquia_preto = cv2.findContours(linha_preta.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     contours_verde, hierarquia_verde = cv2.findContours(sinal_verde.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
+    lower = numpy.array([50, 50, 50])
+    upper = numpy.array([0, 0, 0])
+    mask = cv2.inRange(image, upper, lower)
+    Verde_detectado = False
     #print(len(contours))
-    try:
-        if len(contours_verde) > 0:
-            Verde = True
-            x_verde, y_verde, w_verde, h_verde = cv2.boundingRect(contours_preto[0])
-            centerx_verde0 = x_verde + (w_verde / 2)
-            centerx_verde = (int(centerx_verde0))
-            cv2.line(image, (centerx_verde, 200), (centerx_verde, 250), (0, 0, 255), 3)
-            print("Verde Detectado")
-    except:
-        Verde = False
-        print("Verde : (%s)" % (Verde))
+   # try:
+    if len(contours_verde) > 0:
+    #Verde = True
+        Verde_detectado = True
+        x_verde, y_verde, w_verde, h_verde = cv2.boundingRect(contours_verde[0])
+        centerx_verde0 = x_verde + (w_verde / 2)
+        centerx_verde = (int(centerx_verde0))
+        cv2.line(image, (centerx_verde, 200), (centerx_verde, 250), (0, 255, 0), 3)
+        print(centerx_verde)
     if len(contours_preto) > 0:
         Preto = True
         x_preto, y_preto, w_preto, h_preto = cv2.boundingRect(contours_preto[0])
         centerx_preto0 = x_preto + (w_preto / 2)
         centerx_preto = (int(centerx_preto0))
-        cv2.line(image, (centerx_preto, 200), (centerx_preto, 250), (0, 0, 255), 3)
-        print(Preto)
-        lower = numpy.array([50,50,50])
-        upper = numpy.array([0,0,0])
-        mask = cv2.inRange(image, upper, lower)
+        cv2.line(image, (centerx_preto, 200), (centerx_preto, 250), (255, 0, 0), 3)
+        if Preto == True:
+            print("Preto Detectado")
     #if len(contours_preto) > 0:
         #c = max(contours, key=cv2.contourArea) ## CODIGO DE DESENHO 1
         #M = cv2.moments(c) ## CODIGO DE DESENHO 1
@@ -75,7 +75,7 @@ while True:
         #upper = numpy.array([0,0,0])
         #mask = cv2.inRange(image, upper, lower)
     #rawCapture.truncate(0)
-    cv2.imshow('frame', sinal_verde)
+    cv2.imshow('frame', image)
     cv2.imshow("mask", mask)
     cv2.imshow("roi", roi)
     if cv2.waitKey(1) & 0xFF == ord('q'):
