@@ -9,24 +9,18 @@ import time
 video = cv2.VideoCapture(-1)
 video.set(3, 640)
 video.set(4, 360)
-video.set(5, 60)
+#video.set(5, 60)
 #video.set(4, 360)
 #capture.set(5, 20) #set FPS
-#capture.set(cv2.CAP_PROP_FPS, 60)
-#cv2.CAP_PROP_FRAME_COUNT
+video.set(cv2.CAP_PROP_FPS, 60)
 
-#capture.set(10, 20) #set brightness
-# Create um frame
-#check, frame = video.read()
-#print(check)
-# print(frame)
 a = "a"#90
 while True:
     successful, image = video.read()
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-    roi = hsv[200:250, 0:639] # Cortar a imagem em forma de retangulo
-    linha_preta = cv2.inRange(roi, (0, 0, 0), (50, 50, 50))
-    sinal_verde = cv2.inRange(roi, (0, 65, 0), (100, 200, 100))
+    #roi = hsv[200:250, 0:639] # Cortar a imagem em forma de retangulo
+    linha_preta = cv2.inRange(hsv, (0, 0, 0), (50, 50, 50))
+    sinal_verde = cv2.inRange(hsv, (0, 65, 0), (100, 200, 100))
     kernel = numpy.ones((3, 3), numpy.uint8)
     linha_preta = cv2.erode(linha_preta, kernel, iterations=5)
     linha_preta = cv2.dilate(linha_preta, kernel, iterations=9)
@@ -49,11 +43,28 @@ while True:
         cv2.line(image, (centerx_verde, 200), (centerx_verde, 250), (0, 255, 0), 3)
         print(centerx_verde)
     if len(contours_preto) > 0:
+        area_preta = cv2.minAreaRect(contours_preto[0])
+        (x_minimo, y_minimo), (w_minimo, h_minimo), angulo = area_preta
+        if angulo < -45:
+            angulo = 90 + angulo
+        if w_minimo < h_minimo and angulo > 0:
+            angulo = (90-angulo)*-1
+        if w_minimo > h_minimo and angulo < 0:
+            angulo = 90 + angulo
+        setpoint = 320
+        error = int(x_minimo - setpoint)
+        angulo = int(angulo)
+        area = cv2.boxPoints(area_preta)
+        area = numpy.int0(area)
         Preto = True
+        cv2.drawContours(image, [area],0,(0,0,255),3)
+        cv2.putText(image, str(angulo), (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+        cv2.putText(image, str(error), (10, 320), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 2)
+        cv2.line(image, (int(x_minimo), 200), (int(x_minimo), 250), (255, 0, 0), 3)
         x_preto, y_preto, w_preto, h_preto = cv2.boundingRect(contours_preto[0])
         centerx_preto0 = x_preto + (w_preto / 2)
         centerx_preto = (int(centerx_preto0))
-        cv2.line(image, (centerx_preto, 200), (centerx_preto, 250), (255, 0, 0), 3)
+        #cv2.line(image, (centerx_preto, 200), (centerx_preto, 250), (255, 0, 0), 3)
         if Preto == True:
             print("Preto Detectado")
     if Verde_detectado == True:
@@ -88,7 +99,7 @@ while True:
     #rawCapture.truncate(0)
     cv2.imshow('frame', image)
     cv2.imshow("mask", mask)
-    cv2.imshow("roi", roi)
+    #cv2.imshow("roi", roi)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
 #cv2.imshow("Gravando", image)
