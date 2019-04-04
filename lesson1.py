@@ -20,8 +20,8 @@ while True:
     successful, image = video.read()
     hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV )
     cortada = hsv[200:250, 0:639] # Cortar a imagem em forma de retangulo
-    linha_preta = cv2.inRange(cortada, (0, 0, 0), (50, 50, 50))
-    sinal_verde = cv2.inRange(cortada, (0, 65, 0), (100, 200, 100))
+    linha_preta = cv2.inRange(image, (0, 0, 0), (177, 255, 255))
+    sinal_verde = cv2.inRange(cortada, (37, 246, 43), (60, 255, 255))
     kernel = numpy.ones((3, 3), numpy.uint8)
     linha_preta = cv2.erode(linha_preta, kernel, iterations=5)
     linha_preta = cv2.dilate(linha_preta, kernel, iterations=9)
@@ -29,17 +29,14 @@ while True:
     sinal_verde = cv2.erode(sinal_verde, kernel, iterations=9)
     contours_preto, hierarquia_preto = cv2.findContours(linha_preta.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     contours_verde, hierarquia_verde = cv2.findContours(sinal_verde.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    #lower_black = numpy.array([50, 50, 50])
-    #upper_black = numpy.array([0, 0, 0])
-    #mask_black = cv2.inRange(image, upper_black, lower_black)
-
     Verde_detectado = False
     if len(contours_verde) > 0:
         Verde_detectado = True
         x_verde, y_verde, w_verde, h_verde = cv2.boundingRect(contours_verde[0])
         centerx_verde0 = x_verde + (w_verde / 2)
+        print(centerx_verde0)
         centerx_verde = (int(centerx_verde0))
-        cv2.line(image, (centerx_verde, 200), (centerx_verde, 250), (0, 255, 0), 3)
+        cv2.line(cortada, (centerx_verde, 200), (centerx_verde, 250), (0, 255, 0), 3)
         setpoint2 = 320
         error2 = int(x_verde - setpoint2)
         cv2.putText(image,("Posicao verde (%s)" %(error2)), (30, 400), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
@@ -89,13 +86,10 @@ while True:
         box = cv2.boxPoints(area_preta)
         box = numpy.int0(box)
         Preto = True
-        cv2.drawContours(image, [box],0,(0,0,255),3)
+        cv2.drawContours(image, [box], 0, (0,0,255), 3)
         cv2.putText(image, str(angulo), (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         cv2.putText(image, ("Posicao preta (%s)" %(error)), (10, 320), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 0), 2)
         cv2.line(image, (int(x_minimo), 200), (int(x_minimo), 250), (255, 0, 0), 3)
-        x_preto, y_preto, w_preto, h_preto = cv2.boundingRect(contours_preto[0])
-        centerx_preto0 = x_preto + (w_preto / 2)
-        centerx_preto = (int(centerx_preto0))
         #cv2.line(image, (centerx_preto, 200), (centerx_preto, 250), (255, 0, 0), 3)
         if Preto == True:
             print("")
@@ -113,6 +107,6 @@ while True:
     cv2.imshow('Imagem sem hsv', image)
     #cv2.imshow("Mascara preta", mask_black)
     #cv2.imshow("Imagem cortada em hsv", cortada)
-    #cv2.imshow("roi", roi)
+    cv2.imshow("roi", cortada)
     if cv2.waitKey(1) & 0xFF == ord('q'):
         break
