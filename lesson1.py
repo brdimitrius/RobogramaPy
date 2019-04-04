@@ -18,7 +18,7 @@ y_last = 180
 a = "a"#90
 while True:
     successful, image = video.read()
-    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
+    hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV )
     cortada = hsv[200:250, 0:639] # Cortar a imagem em forma de retangulo
     linha_preta = cv2.inRange(cortada, (0, 0, 0), (50, 50, 50))
     sinal_verde = cv2.inRange(cortada, (0, 65, 0), (100, 200, 100))
@@ -29,12 +29,9 @@ while True:
     sinal_verde = cv2.erode(sinal_verde, kernel, iterations=9)
     contours_preto, hierarquia_preto = cv2.findContours(linha_preta.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
     contours_verde, hierarquia_verde = cv2.findContours(sinal_verde.copy(), cv2.RETR_TREE, cv2.CHAIN_APPROX_SIMPLE)
-    lower_black = numpy.array([50, 50, 50])
-    upper_black = numpy.array([0, 0, 0])
-    mask_black = cv2.inRange(image, upper_black, lower_black)
-    #lower_verde = numpy.array([0, 65, 0])
-    #upper_verde = numpy.array([0, 50, 0])
-    mask_verde = cv2.inRange(image, (36, 25, 25), (70, 255,255))
+    #lower_black = numpy.array([50, 50, 50])
+    #upper_black = numpy.array([0, 0, 0])
+    #mask_black = cv2.inRange(image, upper_black, lower_black)
 
     Verde_detectado = False
     if len(contours_verde) > 0:
@@ -112,10 +109,9 @@ while True:
             #elif len(contours_verde) == 0 and len(contours_preto) == 0
     else:
         setpoint = 320
-        error = centerx_preto - setpoint
-    #cv2.imshow('Imagem sem hsv', image)
+        #error = centerx_preto - setpoint
+    cv2.imshow('Imagem sem hsv', image)
     #cv2.imshow("Mascara preta", mask_black)
-    cv2.imshow("Mascara verde",mask_verde)
     #cv2.imshow("Imagem cortada em hsv", cortada)
     #cv2.imshow("roi", roi)
     if cv2.waitKey(1) & 0xFF == ord('q'):
