@@ -14,6 +14,8 @@ lower = np.array([])
 upper = np.array([])
 
 camera = cv2.VideoCapture(-1)
+camera.set(3, 600)
+camera.set(4, 400)
 
 
 def obter_valor_cor(evento, x, y, flags, param): #click_and_crop # event
@@ -78,8 +80,9 @@ while True:
 
         roi = frame[refPt[0][1]:refPt[1][1], refPt[0][0]:refPt[1][0]]
         #cv2.imshow("ROI", roi)
-
-        hsvRoi = cv2.cvtColor(roi, cv2.COLOR_RGB2HSV)
+        #hsvRoi = roi
+        #hsvRoi = cv2.cvtColor(roi, cv2.COLOR_RGB2BGR) # PARA OBTER VALOR DO PRETO
+        hsvRoi = cv2.cvtColor(roi, cv2.COLOR_RGB2HSV) # PARA OBTER VALOR DO VERDE
         print('minimo H = {}, minimo S = {}, minimo V = {} \nmaximo H = {}, maximo S = {}, maximo V = {}'.format(hsvRoi[:,:,0].min(), hsvRoi[:,:,1].min(), hsvRoi[:,:,2].min(), hsvRoi[:,:,0].max(), hsvRoi[:,:,1].max(), hsvRoi[:,:,2].max()))
         lower = np.array([hsvRoi[:, :, 0].min(), hsvRoi[:, :, 1].min(), hsvRoi[:, :, 2].min()])
         upper = np.array([hsvRoi[:, :, 0].max(), hsvRoi[:, :, 1].max(), hsvRoi[:, :, 2].max()])
