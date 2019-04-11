@@ -4,22 +4,26 @@ import sys
 import numpy
 import cv2
 #camera = 0
+#from ev3dev.ev3 import *
+
 video = cv2.VideoCapture(-1)
 #print(video)
 #video = numpy.array(video, numpy.uint8)
 video.set(3, 600)
 video.set(4, 400)
-
+#m = LargeMotor('outD')
+#n = LargeMotor('outA')
 x_last = 320
 y_last = 180
 tempo_inicial = time.time()
-print("Tempo inicial ", tempo_inicial)
+#print("Tempo inicial ", tempo_inicial)
 contador = 0
 #print("ABCCC")
 # se a camera falhar, repetir o processo de abertura
 a = "a"
 # only attempt to read if it is opened
-
+kp = .75
+ap = 1
 while True:
     contador += 1
     sucessfullly, imagem = video.read()
@@ -28,7 +32,7 @@ while True:
     hsv = cv2.cvtColor(imagem, cv2.COLOR_RGB2HSV)
     bgr = imagem
     bgr = cv2.cvtColor(imagem, cv2.COLOR_RGB2BGR)
-    # cortada = imagem[140:150, 200:800]
+    #cortada = imagem[140:150, 200:800]
     cortada = bgr[200:250, 0:900]
     linha_preta = cv2.inRange(imagem, (0, 0, 0), (32, 255, 21))
     sinal_verde = cv2.inRange(hsv, (32, 100, 82), (60, 255, 255))
@@ -69,7 +73,7 @@ while True:
         # print("Angulo verde: ", error2)
         # cv2.putText(image, ("Posicao verde (%s)" % (error2)), (30, 400), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0),2)
     contours_preto_len = len(contours_preto)
-    print(contours_preto_len)
+    #print(contours_preto_len)
     if contours_preto_len > 0:
         if contours_preto_len == 1:
             area_preta = cv2.minAreaRect(contours_preto[0])
@@ -105,16 +109,21 @@ while True:
         x_last = x_minimo
         y_last = y_minimo
         angulo = int(angulo)
-        cv2.circle(imagem, (x_box, y_box), 10, (255, 0, 255), 3)
+        #print("ANgulo norm : ", angulo)
+        #print("Angulo mult : ", angulo * 4)
+        #cv2.circle(imagem, (x_box, y_box), 10, (255, 0, 255), 3)
         # x_box, y_box = box[1]
-        cv2.circle(imagem, (x_box, y_box), 10, (0, 0, 255), 3)
+        #cv2.circle(imagem, (x_box, y_box), 10, (0, 0, 255), 3)
         if angulo < -45:
             angulo = 90 + angulo
+            angulo = angulo * 4
         if w_minimo < h_minimo and angulo > 0:
             angulo = (90 - angulo) * -1
+            angulo = angulo * 4
         if w_minimo > h_minimo and angulo < 0:
             angulo = 90 + angulo
-        ag = box.flat[0]
+            angulo = 90 * 4
+        #ag = box.flat[0]
         # cv2.circle(imagem, (ag, 200), 10, (153, 51, 153), 3)
         x_pretum, y_pretum, w_pretum, h_pretum = cv2.boundingRect(contours_preto[0])
         setpoint = 320
@@ -123,11 +132,23 @@ while True:
         box = numpy.int0(box)
         cv2.putText(imagem, str(angulo), (10, 40), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
         cv2.drawContours(imagem, [box], 0, (0, 0, 255), 3)
-        cv2.putText(imagem, ("Posicao preta (%s)" % (str(ag))), (10, 320), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
+        #cv2.putText(imagem, ("Posicao preta (%s)" % (str(ag))), (10, 320), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         cv2.putText(imagem, (str(error)), (10, 60), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
         cv2.drawContours(imagem, contours_preto, -1, (0, 255, 0), 3)
         cv2.line(imagem, (int(x_minimo), 200), (int(x_minimo), 250), (255, 0, 0), 3)
         # cv2.line(imagem, (int(x_minimo), 200), (int(x_minimo), 250), (211, 0, 148), 3)
+        print(angulo)
+        if angulo < 0:
+            print("Esquerda")
+            #n.run_to_rel_pos(position_sp=angulo, speed_sp=1000) # A
+        elif angulo > 0:
+            print("Direita")
+            #m.run_to_rel_pos(position_sp=angulo, speed_sp=1000) # A
+        elif angulo == 0:
+            print("Reto")
+            #m.run_forever(speed_sp=1000)
+            #n.run_forever(speed_sp=1000)
+        #m.run_to_rel_pos(position_sp=360, speed_sp=900, stop_action="hold")
         # angulo = int(angulo)
 
         Preto = True
@@ -147,15 +168,17 @@ while True:
     #    valor_angulo = error_pretum
     #    m.run_to_rel_pos(position_sp=valor_angulo, speed_sp=100, stop_action="hold")
     if Verde_detectado == True:
-        if dist < 500:
+        if dist < 150:
             Esquerda = False
             Direita = True
+            #m.run_to_rel_pos(position_sp=360, speed_sp=100, stop_action="hold")
             cv2.putText(imagem, "Vire a direita", (350, 180), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 3)
             print("Direita Direita Direita Direita Direita")
-        elif dist > 500:
+        elif dist > 150:
             Esquerda = True
             Direita = False
             print("Esquerda")
+            #n.run_to_rel_pos(position_sp=360, speed_sp=100, stop_action="hold")
             cv2.putText(imagem, "Vire a esquerda", (50, 180), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0, 255, 0), 3)
         # elif len(contours_verde) == 0 and len(contours_preto) == 0
         # else:
